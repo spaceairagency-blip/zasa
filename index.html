@@ -3,208 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eid Mubarak Live Feed</title>
+    <title>🌙 Eid Mubarak Live Stream</title>
     <style>
-        :root { --gold: #fbbf24; --emerald: #064e3b; --dark: #022c22; }
-        
+        /* Festive Eid Theme */
         body { 
-            background-color: var(--dark); 
-            color: white; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; padding: 10px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        .header { text-align: center; margin-bottom: 15px; }
-        .header h1 { color: var(--gold); margin: 5px 0; font-size: 1.8rem; }
-
-        /* THE VIDEO BOX - NOW LARGE */
-        .main-display {
-            width: 100%;
-            max-width: 900px;
-            background: #000;
-            border: 2px solid var(--gold);
-            border-radius: 15px;
-            position: relative;
-            aspect-ratio: 16 / 9; /* Professional Widescreen */
+            background: radial-gradient(circle at center, #064e3b, #022c22); 
+            color: #fef3c7; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        video, #viewer {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Shows full camera frame */
-            display: none;
-        }
-
-        /* FULLSCREEN BUTTON ON VIDEO */
-        .fs-badge {
+        body::before {
+            content: "🌙";
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.6);
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            border: 1px solid var(--gold);
-            font-size: 0.8rem;
-            z-index: 10;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            opacity: 0.2;
         }
 
-        /* CONTROL PANEL */
-        .setup-box {
-            width: 100%;
-            max-width: 900px;
+        .glass-panel { 
+            background: rgba(6, 78, 59, 0.4); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px; 
+            border-radius: 30px; 
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            text-align: center; 
+            width: 90%; 
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(251, 191, 36, 0.1);
+            position: relative;
+        }
+
+        h2 { 
+            margin-bottom: 5px; 
+            font-weight: 700; 
+            letter-spacing: 2px; 
+            color: #fbbf24;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #d1fae5;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        input { 
+            padding: 14px; 
+            border-radius: 15px; 
+            border: 1px solid rgba(251, 191, 36, 0.3); 
+            width: 85%; 
+            background: rgba(0, 0, 0, 0.2); 
+            color: #fbbf24; 
+            margin-bottom: 20px; 
+            outline: none;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .controls { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
+
+        button { 
+            padding: 12px 30px; 
+            border-radius: 50px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-live { 
+            background: linear-gradient(135deg, #b91c1c, #7f1d1d); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(185, 28, 28, 0.4); 
+        }
+
+        .btn-watch { 
+            background: linear-gradient(135deg, #d97706, #92400e); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4); 
+        }
+
+        button:hover { 
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        video, img { 
+            width: 100%; 
+            border-radius: 20px; 
+            border: 3px solid #fbbf24; 
             margin-top: 15px;
-            background: rgba(6, 78, 59, 0.4);
-            padding: 20px;
-            border-radius: 15px;
-            box-sizing: border-box;
-            text-align: center;
+            display: none;
+            background: #064e3b;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         }
 
-        input {
-            width: 80%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--gold);
-            background: #000;
-            color: var(--gold);
-            font-size: 1rem;
-            text-align: center;
+        #status { 
+            color: #fbbf24; 
+            font-size: 0.9rem; 
+            margin-top: 20px; 
+            font-weight: 500;
+            background: rgba(0,0,0,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
         }
-
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        button {
-            padding: 15px;
-            border-radius: 10px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.3s;
-        }
-
-        /* WATCH BUTTON - Blue/Gold for contrast */
-        .btn-watch { background: #1d4ed8; color: white; }
-        .btn-stream { background: #b91c1c; color: white; }
-        .btn-camera { background: var(--gold); color: var(--emerald); grid-column: span 2; }
-
-        button:active { transform: scale(0.95); }
-
-        #status { margin-top: 10px; color: var(--gold); font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>🌙 Eid Live View</h1>
-        <div id="status">Ready to connect</div>
-    </div>
-
-    <div class="main-display" id="videoContainer">
-        <div class="fs-badge" onclick="toggleFS()">⛶ Fullscreen</div>
-        <video id="video" autoplay playsinline muted></video>
-        <img id="viewer" src="" alt="Waiting for Family...">
-        <canvas id="canvas" style="display:none;"></canvas>
-    </div>
-
-    <div class="setup-box">
-        <input type="password" id="passInput" placeholder="Enter Code (abc123)">
+    <div class="glass-panel">
+        <h2>🌙 Eid Mubarak</h2>
+        <p class="subtitle">Join the Family Celebration Live</p>
         
-        <div class="btn-group">
-            <button class="btn-watch" onclick="init('watch')">📺 JOIN & WATCH</button>
-            <button class="btn-stream" onclick="init('stream')">📽️ START STREAM</button>
-            <button class="btn-camera" onclick="switchCam()">🔄 SWITCH TO BACK CAMERA</button>
+        <input type="password" id="passInput" placeholder="Enter Secret Code">
+        
+        <div class="controls">
+            <button class="btn-live" onclick="init('stream')">Start Stream</button>
+            <button class="btn-watch" onclick="init('watch')">Join Celebration</button>
         </div>
+
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="viewer" alt="Waiting for the host to start...">
+        
+        <p id="status">Ready to connect</p>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP8-zoB6q9PGw_dFOj53QI0IgWXVIK7ECnaG9ySF14VhqQcaXxjBqRA_8VODJWNAZIQ/exec";
-        let useBack = false;
-        let activeStream = null;
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP8-zoB6q9PGw_dFOj53QI0IgWXVIK7ECnaG9ySF14VhqQcaXxjBqRA_8VODJWNAZIQ/exec"; 
+        
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const viewer = document.getElementById('viewer');
+        const status = document.getElementById('status');
+
+        // Pre-set canvas size for efficiency
+        canvas.width = 320; 
+        canvas.height = 240;
 
         async function init(mode) {
             const pass = document.getElementById('passInput').value;
-            if(!pass) return alert("Please enter the password!");
+            if (!pass) {
+                alert("Please enter the password first!");
+                return;
+            }
 
-            if(mode === 'stream') {
-                document.getElementById('viewer').style.display = "none";
-                document.getElementById('video').style.display = "block";
-                startStreaming(pass);
+            if (mode === 'stream') {
+                startBroadcasting(pass);
             } else {
-                document.getElementById('video').style.display = "none";
-                document.getElementById('viewer').style.display = "block";
                 startWatching(pass);
             }
         }
 
-        async function startStreaming(pass) {
-            if(activeStream) activeStream.getTracks().forEach(t => t.stop());
-            
+        async function startBroadcasting(pass) {
             try {
-                activeStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: useBack ? "environment" : "user" }
-                });
-                const videoEl = document.getElementById('video');
-                videoEl.srcObject = activeStream;
-                document.getElementById('status').innerText = "🔴 YOU ARE BROADCASTING";
-
-                const canvas = document.getElementById('canvas');
-                const ctx = canvas.getContext('2d');
-
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = stream;
+                video.style.display = "block";
+                viewer.style.display = "none";
+                status.innerText = "✨ You are Live!";
+                
+                const context = canvas.getContext('2d');
+                
+                // Speed increased to 300ms (roughly 3.3 frames per second)
                 setInterval(() => {
-                    canvas.width = 640; 
-                    canvas.height = 480;
-                    ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-                    const imgData = canvas.toDataURL('image/jpeg', 0.4);
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    // Quality slightly lowered to 0.25 to keep the network traffic light
+                    const base64 = canvas.toDataURL('image/jpeg', 0.25);
                     
                     fetch(SCRIPT_URL, {
                         method: 'POST',
                         mode: 'no-cors',
-                        body: JSON.stringify({ password: pass, image: imgData })
+                        body: JSON.stringify({ password: pass, image: base64 })
                     });
-                }, 1000);
-            } catch(e) { alert("Camera Error!"); }
+                }, 300); 
+
+            } catch (e) {
+                alert("Camera access denied!");
+                status.innerText = "Error: Camera not found";
+            }
         }
 
         function startWatching(pass) {
-            document.getElementById('status').innerText = "⌛ Connecting to Family Feed...";
-            const viewer = document.getElementById('viewer');
+            video.style.display = "none";
+            viewer.style.display = "block";
+            status.innerText = "Connecting to the celebration...";
             
+            // Speed increased to 300ms for watchers too
             setInterval(async () => {
                 try {
-                    const r = await fetch(`${SCRIPT_URL}?pass=${pass}`);
-                    const data = await r.text();
-                    if(data.startsWith("data:image")) {
+                    const res = await fetch(`${SCRIPT_URL}?pass=${pass}`);
+                    const data = await res.text();
+                    
+                    if (data && data !== "Unauthorized" && data.startsWith("data:image")) {
                         viewer.src = data;
-                        document.getElementById('status').innerText = "🔴 LIVE FROM HOME";
+                        status.innerText = "🔴 Live Now";
+                    } else if (data === "Unauthorized") {
+                        status.innerText = "Incorrect Password";
                     }
-                } catch(e) { }
-            }, 1000);
-        }
-
-        function switchCam() {
-            useBack = !useBack;
-            const pass = document.getElementById('passInput').value;
-            if(pass) init('stream');
-            document.getElementById('status').innerText = "Switching Camera...";
-        }
-
-        function toggleFS() {
-            const el = document.getElementById('videoContainer');
-            if (!document.fullscreenElement) {
-                el.requestFullscreen().catch(err => alert("Error enabling fullscreen"));
-            } else {
-                document.exitFullscreen();
-            }
+                } catch (e) {
+                    status.innerText = "Waiting for host...";
+                }
+            }, 300);
         }
     </script>
 </body>
