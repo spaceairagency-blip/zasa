@@ -1,126 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3-Letter Live Stream</title>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <title>Private Live Stream</title>
     <style>
-        /* Glassmorphism UI */
-        body {
-            margin: 0; padding: 20px; font-family: 'Segoe UI', sans-serif;
-            background: #0f172a; color: #f8fafc;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        body { 
+            background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; 
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0;
         }
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
-            padding: 2rem; width: 90%; max-width: 500px; text-align: center;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        .glass { 
+            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(15px); 
+            padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            text-align: center; width: 90%; max-width: 450px;
         }
-        .video-box {
-            width: 100%; background: #000; border-radius: 12px;
-            margin: 20px 0; border: 2px solid #3b82f6; overflow: hidden;
+        input { 
+            padding: 12px; border-radius: 8px; border: none; width: 80%; 
+            background: rgba(255,255,255,0.1); color: white; margin-bottom: 15px; 
         }
-        video { width: 100%; display: block; }
-        input {
-            padding: 12px; border-radius: 8px; border: 1px solid #334155;
-            background: #1e293b; color: white; width: 80%; margin-bottom: 10px; text-align: center;
+        video, img { width: 100%; border-radius: 12px; border: 2px solid #3b82f6; margin-top: 15px; }
+        button { 
+            padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; 
+            font-weight: bold; transition: 0.3s; margin: 5px;
         }
-        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
-        button {
-            padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer;
-            font-weight: bold; transition: 0.2s;
-        }
-        .btn-start { background: #22c55e; color: white; }
+        .btn-live { background: #ef4444; color: white; }
         .btn-watch { background: #3b82f6; color: white; }
-        #status { font-size: 0.85rem; color: #94a3b8; margin-top: 15px; }
-        .my-id-tag { color: #f59e0b; font-weight: bold; font-size: 1.2rem; }
+        #status { color: #94a3b8; font-size: 0.9rem; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="glass-panel">
-        <h2>Live Stream (P2P)</h2>
+    <div class="glass">
+        <h2>Live Stream Studio</h2>
+        <input type="password" id="passInput" placeholder="Enter Password (abc123)">
         
-        <p>Set/Enter your 3-letter ID:</p>
-        <input type="text" id="my-custom-id" placeholder="e.g. 123" maxlength="3">
+        <div class="controls">
+            <button class="btn-live" onclick="init('stream')">Go Live</button>
+            <button class="btn-watch" onclick="init('watch')">Watch</button>
+        </div>
+
+        <video id="video" autoplay playsinline style="display:none;"></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="viewer" style="display:none;" alt="Live Feed">
         
-        <div class="btn-group">
-            <button class="btn-start" onclick="connectAsHost()">1. Start Host</button>
-        </div>
-
-        <div class="video-box">
-            <video id="main-video" autoplay playsinline></video>
-        </div>
-
-        <hr style="width:100%; border:0.5px solid rgba(255,255,255,0.1); margin:20px 0;">
-
-        <p>Watch someone else:</p>
-        <input type="text" id="remote-id-input" placeholder="Enter Host's 3-letter ID" maxlength="3">
-        <div class="btn-group">
-            <button class="btn-watch" onclick="joinStream()">2. Watch Live</button>
-        </div>
-
-        <p id="status">Status: Offline</p>
+        <p id="status">Status: Waiting for action...</p>
     </div>
 
     <script>
-        let peer;
-        let localStream;
-        const mainVideo = document.getElementById('main-video');
-        const statusText = document.getElementById('status');
+        // Paste your Apps Script URL below once
+        const SCRIPT_URL = "YOUR_DEPLOYED_URL_HERE"; 
+        
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const viewer = document.getElementById('viewer');
+        const status = document.getElementById('status');
 
-        // Host hisebe connect kora
-        async function connectAsHost() {
-            const customId = document.getElementById('my-custom-id').value;
-            if (customId.length !== 3) return alert("Please enter exactly 3 letters/numbers!");
+        async function init(mode) {
+            const pass = document.getElementById('passInput').value;
+            if (pass !== "abc123") return alert("Wrong Password!");
 
-            // Puraton connection thakle bondho kora
-            if(peer) peer.destroy();
-
-            // Noutun ID diye Peer initialize kora
-            peer = new Peer(customId);
-
-            peer.on('open', async (id) => {
-                statusText.innerText = "Host Ready! ID: " + id;
-                try {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    mainVideo.srcObject = localStream;
-                    mainVideo.muted = true;
-                } catch (e) { alert("Camera access required!"); }
-            });
-
-            peer.on('call', (call) => {
-                call.answer(localStream);
-                statusText.innerText = "Connection active! Someone is watching.";
-            });
-
-            peer.on('error', (err) => {
-                if(err.type === 'unavailable-id') {
-                    alert("This ID is already taken! Try another 3 letters.");
-                } else {
-                    console.error(err);
-                }
-            });
+            if (mode === 'stream') {
+                startBroadcasting(pass);
+            } else {
+                startWatching(pass);
+            }
         }
 
-        // Viewer hisebe join kora
-        function joinStream() {
-            const hostId = document.getElementById('remote-id-input').value;
-            if (hostId.length !== 3) return alert("Enter a valid 3-letter Host ID");
+        async function startBroadcasting(pass) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.style.display = "block";
+                status.innerText = "Broadcasting Live...";
+                
+                const context = canvas.getContext('2d');
+                setInterval(() => {
+                    canvas.width = 320; 
+                    canvas.height = 240;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const base64 = canvas.toDataURL('image/jpeg', 0.4);
+                    
+                    fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: JSON.stringify({ password: pass, image: base64 })
+                    });
+                }, 800); // 0.8 sec interval for stability
+            } catch (e) { alert("Camera not found!"); }
+        }
 
-            // Viewer-er nijaswo random ID (ID conflict echanor jonno)
-            if(!peer) peer = new Peer(); 
-
-            statusText.innerText = "Connecting to " + hostId + "...";
-            const call = peer.call(hostId, null); 
+        function startWatching(pass) {
+            viewer.style.display = "block";
+            status.innerText = "Fetching Live Feed...";
             
-            call.on('stream', (remoteStream) => {
-                mainVideo.srcObject = remoteStream;
-                mainVideo.muted = false;
-                statusText.innerText = "Watching Live Stream (Smooth)";
-            });
+            setInterval(async () => {
+                try {
+                    const res = await fetch(`${SCRIPT_URL}?pass=${pass}`);
+                    const data = await res.text();
+                    if (data && data !== "Unauthorized") {
+                        viewer.src = data;
+                    }
+                } catch (e) { console.log("Connecting..."); }
+            }, 800);
         }
     </script>
 </body>
