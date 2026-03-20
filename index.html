@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GAS Private Live Stream</title>
+    <title>🌙 Eid Mubarak Live Stream</title>
     <style>
-        /* Glassmorphism Design */
+        /* Festive Eid Theme */
         body { 
-            background: #0f172a; 
-            color: white; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: radial-gradient(circle at center, #064e3b, #022c22); 
+            color: #fef3c7; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -18,81 +18,133 @@
             overflow: hidden;
         }
 
-        .glass-panel { 
-            background: rgba(30, 41, 59, 0.6); 
-            backdrop-filter: blur(15px); 
-            -webkit-backdrop-filter: blur(15px);
-            padding: 30px; 
-            border-radius: 24px; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center; 
-            width: 90%; 
-            max-width: 450px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        /* Decorative background elements */
+        body::before {
+            content: "🌙";
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            opacity: 0.2;
         }
 
-        h2 { margin-bottom: 20px; font-weight: 300; letter-spacing: 1px; }
+        .glass-panel { 
+            background: rgba(6, 78, 59, 0.4); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px; 
+            border-radius: 30px; 
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            text-align: center; 
+            width: 90%; 
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(251, 191, 36, 0.1);
+            position: relative;
+        }
+
+        h2 { 
+            margin-bottom: 5px; 
+            font-weight: 700; 
+            letter-spacing: 2px; 
+            color: #fbbf24;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #d1fae5;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
 
         input { 
-            padding: 12px; 
-            border-radius: 12px; 
-            border: none; 
+            padding: 14px; 
+            border-radius: 15px; 
+            border: 1px solid rgba(251, 191, 36, 0.3); 
             width: 85%; 
-            background: rgba(255, 255, 255, 0.05); 
-            color: white; 
+            background: rgba(0, 0, 0, 0.2); 
+            color: #fbbf24; 
             margin-bottom: 20px; 
             outline: none;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1rem;
         }
 
-        .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        input::placeholder { color: rgba(251, 191, 36, 0.5); }
+
+        .controls { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
 
         button { 
-            padding: 12px 25px; 
-            border-radius: 12px; 
+            padding: 12px 30px; 
+            border-radius: 50px; 
             border: none; 
             cursor: pointer; 
             font-weight: bold; 
-            transition: 0.3s;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .btn-live { background: #ef4444; color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
-        .btn-watch { background: #3b82f6; color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
-        button:hover { opacity: 0.8; transform: translateY(-2px); }
+        .btn-live { 
+            background: linear-gradient(135deg, #b91c1c, #7f1d1d); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(185, 28, 28, 0.4); 
+        }
+
+        .btn-watch { 
+            background: linear-gradient(135deg, #d97706, #92400e); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4); 
+        }
+
+        button:hover { 
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
 
         video, img { 
             width: 100%; 
-            border-radius: 16px; 
-            border: 2px solid rgba(59, 130, 246, 0.5); 
-            margin-top: 10px;
+            border-radius: 20px; 
+            border: 3px solid #fbbf24; 
+            margin-top: 15px;
             display: none;
-            background: #000;
+            background: #064e3b;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         }
 
-        #status { color: #94a3b8; font-size: 0.85rem; margin-top: 15px; }
+        #status { 
+            color: #fbbf24; 
+            font-size: 0.9rem; 
+            margin-top: 20px; 
+            font-weight: 500;
+            background: rgba(0,0,0,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
 
     <div class="glass-panel">
-        <h2>Live Stream</h2>
-        <input type="password" id="passInput" placeholder="Enter Password (abc123)">
+        <h2>🌙 Eid Mubarak</h2>
+        <p class="subtitle">Join the Family Celebration Live</p>
+        
+        <input type="password" id="passInput" placeholder="Enter Secret Code">
         
         <div class="controls">
-            <button class="btn-live" onclick="init('stream')">Go Live</button>
-            <button class="btn-watch" onclick="init('watch')">Watch</button>
+            <button class="btn-live" onclick="init('stream')">Start Stream</button>
+            <button class="btn-watch" onclick="init('watch')">Join Celebration</button>
         </div>
 
         <video id="video" autoplay playsinline muted></video>
         <canvas id="canvas" style="display:none;"></canvas>
-        <img id="viewer" alt="Waiting for feed...">
+        <img id="viewer" alt="Waiting for the host to start...">
         
-        <p id="status">Ready</p>
+        <p id="status">Ready to connect</p>
     </div>
 
     <script>
-        // Apnar deya URL ekhane set kora holo
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP8-zoB6q9PGw_dFOj53QI0IgWXVIK7ECnaG9ySF14VhqQcaXxjBqRA_8VODJWNAZIQ/exec"; 
         
         const video = document.getElementById('video');
@@ -102,8 +154,8 @@
 
         async function init(mode) {
             const pass = document.getElementById('passInput').value;
-            if (pass !== "abc123") {
-                alert("Wrong Password!");
+            if (!pass) {
+                alert("Please enter the password first!");
                 return;
             }
 
@@ -120,17 +172,14 @@
                 video.srcObject = stream;
                 video.style.display = "block";
                 viewer.style.display = "none";
-                status.innerText = "Broadcasting Live...";
+                status.innerText = "✨ You are Live!";
                 
                 const context = canvas.getContext('2d');
                 
-                // Frequency set to 800ms for stability on GAS
                 setInterval(() => {
                     canvas.width = 320; 
                     canvas.height = 240;
                     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    
-                    // Compress image to save bandwidth
                     const base64 = canvas.toDataURL('image/jpeg', 0.3);
                     
                     fetch(SCRIPT_URL, {
@@ -140,7 +189,7 @@
                     });
                 }, 800); 
             } catch (e) {
-                alert("Camera access denied or not found!");
+                alert("Camera access denied!");
                 status.innerText = "Error: Camera not found";
             }
         }
@@ -148,7 +197,7 @@
         function startWatching(pass) {
             video.style.display = "none";
             viewer.style.display = "block";
-            status.innerText = "Fetching Live Feed...";
+            status.innerText = "Connecting to the celebration...";
             
             setInterval(async () => {
                 try {
@@ -157,10 +206,12 @@
                     
                     if (data && data !== "Unauthorized" && data.startsWith("data:image")) {
                         viewer.src = data;
-                        status.innerText = "Live Now";
+                        status.innerText = "🔴 Live Now";
+                    } else if (data === "Unauthorized") {
+                        status.innerText = "Incorrect Password";
                     }
                 } catch (e) {
-                    status.innerText = "Connecting to host...";
+                    status.innerText = "Waiting for host...";
                 }
             }, 800);
         }
