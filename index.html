@@ -3,166 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GAS Private Live Stream</title>
+    <title>High-Speed P2P Live</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        /* Glassmorphism Design */
-        body { 
-            background: #0f172a; 
-            color: white; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
+        body {
             margin: 0;
-            overflow: hidden;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        .glass-panel { 
-            background: rgba(30, 41, 59, 0.6); 
-            backdrop-filter: blur(15px); 
-            -webkit-backdrop-filter: blur(15px);
-            padding: 30px; 
-            border-radius: 24px; 
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center; 
-            width: 90%; 
-            max-width: 450px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-        }
-
-        h2 { margin-bottom: 20px; font-weight: 300; letter-spacing: 1px; }
-
-        input { 
-            padding: 12px; 
-            border-radius: 12px; 
-            border: none; 
-            width: 85%; 
-            background: rgba(255, 255, 255, 0.05); 
-            color: white; 
-            margin-bottom: 20px; 
-            outline: none;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        h2 { margin-top: 0; color: #3b82f6; }
 
-        button { 
-            padding: 12px 25px; 
-            border-radius: 12px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.3s;
-        }
-
-        .btn-live { background: #ef4444; color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
-        .btn-watch { background: #3b82f6; color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
-        button:hover { opacity: 0.8; transform: translateY(-2px); }
-
-        video, img { 
-            width: 100%; 
-            border-radius: 16px; 
-            border: 2px solid rgba(59, 130, 246, 0.5); 
-            margin-top: 10px;
-            display: none;
+        .video-container {
+            position: relative;
+            width: 100%;
+            margin: 20px 0;
             background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #1e293b;
         }
 
-        #status { color: #94a3b8; font-size: 0.85rem; margin-top: 15px; }
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .id-display {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #22c55e;
+            border: 1px dashed #22c55e;
+        }
+
+        input {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: white;
+            outline: none;
+        }
+
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-success { background: #22c55e; color: white; }
+        button:hover { opacity: 0.9; transform: scale(1.02); }
+
+        #status { font-size: 0.85rem; color: #94a3b8; }
     </style>
 </head>
 <body>
 
     <div class="glass-panel">
-        <h2>Live Stream</h2>
-        <input type="password" id="passInput" placeholder="Enter Password (abc123)">
+        <h2>P2P Smooth Stream</h2>
         
-        <div class="controls">
-            <button class="btn-live" onclick="init('stream')">Go Live</button>
-            <button class="btn-watch" onclick="init('watch')">Watch</button>
+        <div class="id-display">
+            Your Live ID: <span id="my-id">Generating...</span>
         </div>
 
-        <video id="video" autoplay playsinline muted></video>
-        <canvas id="canvas" style="display:none;"></canvas>
-        <img id="viewer" alt="Waiting for feed...">
-        
-        <p id="status">Ready</p>
+        <div class="video-container">
+            <video id="main-video" autoplay playsinline></video>
+        </div>
+
+        <div class="controls">
+            <div class="btn-group">
+                <button class="btn-success" onclick="startCamera()">1. Open Camera</button>
+            </div>
+            
+            <input type="text" id="remote-id-input" placeholder="Paste Host ID here to watch">
+            
+            <div class="btn-group">
+                <button class="btn-primary" onclick="joinStream()">2. Watch Live</button>
+            </div>
+        </div>
+
+        <p id="status">Status: Waiting for Peer connection...</p>
     </div>
 
     <script>
-        // Apnar deya URL ekhane set kora holo
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP8-zoB6q9PGw_dFOj53QI0IgWXVIK7ECnaG9ySF14VhqQcaXxjBqRA_8VODJWNAZIQ/exec"; 
-        
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const viewer = document.getElementById('viewer');
-        const status = document.getElementById('status');
+        const peer = new Peer(); // PeerJS connection
+        let localStream;
+        const mainVideo = document.getElementById('main-video');
+        const statusText = document.getElementById('status');
+        const myIdDisplay = document.getElementById('my-id');
 
-        async function init(mode) {
-            const pass = document.getElementById('passInput').value;
-            if (pass !== "abc123") {
-                alert("Wrong Password!");
-                return;
-            }
+        // Step 1: Peer ID generate hole screen-e dekhano
+        peer.on('open', (id) => {
+            myIdDisplay.innerText = id;
+            statusText.innerText = "Connection Ready. Share your ID.";
+        });
 
-            if (mode === 'stream') {
-                startBroadcasting(pass);
-            } else {
-                startWatching(pass);
-            }
-        }
-
-        async function startBroadcasting(pass) {
+        // Broadcaster: Camera open kora
+        async function startCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                video.srcObject = stream;
-                video.style.display = "block";
-                viewer.style.display = "none";
-                status.innerText = "Broadcasting Live...";
-                
-                const context = canvas.getContext('2d');
-                
-                // Frequency set to 800ms for stability on GAS
-                setInterval(() => {
-                    canvas.width = 320; 
-                    canvas.height = 240;
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    
-                    // Compress image to save bandwidth
-                    const base64 = canvas.toDataURL('image/jpeg', 0.3);
-                    
-                    fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: JSON.stringify({ password: pass, image: base64 })
-                    });
-                }, 800); 
-            } catch (e) {
-                alert("Camera access denied or not found!");
-                status.innerText = "Error: Camera not found";
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { frameRate: { ideal: 30 }, width: 640 }, 
+                    audio: true 
+                });
+                mainVideo.srcObject = localStream;
+                mainVideo.muted = true; // Broadcaster nije nijer awaj shuna dorkar nai
+                statusText.innerText = "Camera Active. Others can now call you.";
+            } catch (err) {
+                alert("Camera access dite hobe!");
             }
         }
 
-        function startWatching(pass) {
-            video.style.display = "none";
-            viewer.style.display = "block";
-            status.innerText = "Fetching Live Feed...";
+        // Broadcaster: Keu call korle video pathano
+        peer.on('call', (call) => {
+            if (localStream) {
+                statusText.innerText = "Someone is watching your live!";
+                call.answer(localStream); // Send my camera stream to them
+            } else {
+                alert("Open your camera first!");
+            }
+        });
+
+        // Viewer: Host ID diye join kora
+        function joinStream() {
+            const hostId = document.getElementById('remote-id-input').value;
+            if (!hostId) return alert("Please enter a Host ID");
+
+            statusText.innerText = "Connecting to Host...";
             
-            setInterval(async () => {
-                try {
-                    const res = await fetch(`${SCRIPT_URL}?pass=${pass}`);
-                    const data = await res.text();
-                    
-                    if (data && data !== "Unauthorized" && data.startsWith("data:image")) {
-                        viewer.src = data;
-                        status.innerText = "Live Now";
-                    }
-                } catch (e) {
-                    status.innerText = "Connecting to host...";
-                }
-            }, 800);
+            // Host-ke call kora (kichu na pathiyei)
+            const call = peer.call(hostId, null); 
+            
+            call.on('stream', (remoteStream) => {
+                mainVideo.srcObject = remoteStream;
+                mainVideo.muted = false; // Live-er awaj shunte pabe
+                statusText.innerText = "Watching Live Stream (30FPS)";
+            });
+
+            call.on('error', (err) => {
+                statusText.innerText = "Connection failed!";
+                console.error(err);
+            });
         }
     </script>
 </body>
