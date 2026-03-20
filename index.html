@@ -1,86 +1,168 @@
-
 <!DOCTYPE html>
-<html>
-<head><script type="text/javascript" src="/___vscode_livepreview_injected_script"></script>
-    <title>BS</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAS Private Live Stream</title>
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; display: inline-block; }
-        video, canvas, img { width: 100%; max-width: 400px; border-radius: 10px; border: 2px solid #3b82f6; }
-        button { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; margin: 10px; font-weight: bold; }
-        .btn-live { background: #ef4444; color: white; }
-        .btn-watch { background: #3b82f6; color: white; }
+        /* Glassmorphism Design */
+        body { 
+            background: #0f172a; 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .glass-panel { 
+            background: rgba(30, 41, 59, 0.6); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            padding: 30px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center; 
+            width: 90%; 
+            max-width: 450px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        h2 { margin-bottom: 20px; font-weight: 300; letter-spacing: 1px; }
+
+        input { 
+            padding: 12px; 
+            border-radius: 12px; 
+            border: none; 
+            width: 85%; 
+            background: rgba(255, 255, 255, 0.05); 
+            color: white; 
+            margin-bottom: 20px; 
+            outline: none;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+
+        button { 
+            padding: 12px 25px; 
+            border-radius: 12px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.3s;
+        }
+
+        .btn-live { background: #ef4444; color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        .btn-watch { background: #3b82f6; color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+        button:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        video, img { 
+            width: 100%; 
+            border-radius: 16px; 
+            border: 2px solid rgba(59, 130, 246, 0.5); 
+            margin-top: 10px;
+            display: none;
+            background: #000;
+        }
+
+        #status { color: #94a3b8; font-size: 0.85rem; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="glass">
-        <h2>Live Video via GAS</h2>
-        <input type="text" id="script-url" placeholder="Paste Apps Script URL here" style="width: 80%; padding: 8px; margin-bottom: 10px;">
+    <div class="glass-panel">
+        <h2>Live Stream</h2>
+        <input type="password" id="passInput" placeholder="Enter Password (abc123)">
         
-        <br>
-        <button class="btn-live" onclick="startBroadcasting()">Go Live (Device 1)</button>
-        <button class="btn-watch" onclick="startWatching()">Watch Live (Device 2)</button>
-
-        <div id="container">
-            <video id="video" autoplay playsinline style="display:none;"></video>
-            <canvas id="canvas" style="display:none;"></canvas>
-            <img id="receiver" src="" alt="Waiting for stream...">
+        <div class="controls">
+            <button class="btn-live" onclick="init('stream')">Go Live</button>
+            <button class="btn-watch" onclick="init('watch')">Watch</button>
         </div>
-        <p id="status">Status: Idle</p>
+
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="viewer" alt="Waiting for feed...">
+        
+        <p id="status">Ready</p>
     </div>
 
     <script>
-        let scriptURL = "";
+        // Apnar deya URL ekhane set kora holo
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP8-zoB6q9PGw_dFOj53QI0IgWXVIK7ECnaG9ySF14VhqQcaXxjBqRA_8VODJWNAZIQ/exec"; 
+        
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const receiver = document.getElementById('receiver');
+        const viewer = document.getElementById('viewer');
         const status = document.getElementById('status');
 
-        async function startBroadcasting() {
-            scriptURL = document.getElementById('script-url').value;
-            if(!scriptURL) return alert("Please enter Script URL");
-            
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-            video.style.display = "block";
-            receiver.style.display = "none";
-            
-            const context = canvas.getContext('2d');
-            status.innerText = "Status: Broadcasting...";
+        async function init(mode) {
+            const pass = document.getElementById('passInput').value;
+            if (pass !== "abc123") {
+                alert("Wrong Password!");
+                return;
+            }
 
-            // Every 500ms (0.5 sec) frame pathabe
-            setInterval(() => {
-                canvas.width = 320; // Resolution kom rakha hoyeche speed-er jonno
-                canvas.height = 240;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
-                const imageData = canvas.toDataURL('image/jpeg', 0.5); // Low quality for speed
-                
-                fetch(scriptURL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ image: imageData })
-                });
-            }, 500); 
+            if (mode === 'stream') {
+                startBroadcasting(pass);
+            } else {
+                startWatching(pass);
+            }
         }
 
-        function startWatching() {
-            scriptURL = document.getElementById('script-url').value;
-            if(!scriptURL) return alert("Please enter Script URL");
+        async function startBroadcasting(pass) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = stream;
+                video.style.display = "block";
+                viewer.style.display = "none";
+                status.innerText = "Broadcasting Live...";
+                
+                const context = canvas.getContext('2d');
+                
+                // Frequency set to 800ms for stability on GAS
+                setInterval(() => {
+                    canvas.width = 320; 
+                    canvas.height = 240;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    // Compress image to save bandwidth
+                    const base64 = canvas.toDataURL('image/jpeg', 0.3);
+                    
+                    fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: JSON.stringify({ password: pass, image: base64 })
+                    });
+                }, 800); 
+            } catch (e) {
+                alert("Camera access denied or not found!");
+                status.innerText = "Error: Camera not found";
+            }
+        }
 
+        function startWatching(pass) {
             video.style.display = "none";
-            receiver.style.display = "block";
-            status.innerText = "Status: Watching...";
-
-            // Every 500ms frame check korbe
+            viewer.style.display = "block";
+            status.innerText = "Fetching Live Feed...";
+            
             setInterval(async () => {
-                const response = await fetch(scriptURL);
-                const base64Data = await response.text();
-                if(base64Data) {
-                    receiver.src = base64Data;
+                try {
+                    const res = await fetch(`${SCRIPT_URL}?pass=${pass}`);
+                    const data = await res.text();
+                    
+                    if (data && data !== "Unauthorized" && data.startsWith("data:image")) {
+                        viewer.src = data;
+                        status.innerText = "Live Now";
+                    }
+                } catch (e) {
+                    status.innerText = "Connecting to host...";
                 }
-            }, 500);
+            }, 800);
         }
     </script>
 </body>
