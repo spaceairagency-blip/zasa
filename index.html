@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html>
+<head><script type="text/javascript" src="/___vscode_livepreview_injected_script"></script>
+    <title>GAS Real-Time Stream</title>
+    <style>
+        body { background: #0f172a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; display: inline-block; }
+        video, canvas, img { width: 100%; max-width: 400px; border-radius: 10px; border: 2px solid #3b82f6; }
+        button { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; margin: 10px; font-weight: bold; }
+        .btn-live { background: #ef4444; color: white; }
+        .btn-watch { background: #3b82f6; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="glass">
+        <h2>Live Video via GAS</h2>
+        <input type="text" id="script-url" placeholder="Paste Apps Script URL here" style="width: 80%; padding: 8px; margin-bottom: 10px;">
+        
+        <br>
+        <button class="btn-live" onclick="startBroadcasting()">Go Live (Device 1)</button>
+        <button class="btn-watch" onclick="startWatching()">Watch Live (Device 2)</button>
+
+        <div id="container">
+            <video id="video" autoplay playsinline style="display:none;"></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <img id="receiver" src="" alt="Waiting for stream...">
+        </div>
+        <p id="status">Status: Idle</p>
+    </div>
+
+    <script>
+        let scriptURL = "https://script.google.com/macros/s/AKfycbzBYGDzbKfVpchVw6s_MxNTiDCHHgwxnA2rO5Xm4UZ95w4Fv8j4FJmMhNmfC-pbB-qbWg/exec";
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const receiver = document.getElementById('receiver');
+        const status = document.getElementById('status');
+
+        async function startBroadcasting() {
+            scriptURL = document.getElementById('script-url').value;
+            if(!scriptURL) return alert("Please enter Script URL");
+            
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.style.display = "block";
+            receiver.style.display = "none";
+            
+            const context = canvas.getContext('2d');
+            status.innerText = "Status: Broadcasting...";
+
+            // Every 500ms (0.5 sec) frame pathabe
+            setInterval(() => {
+                canvas.width = 320; // Resolution kom rakha hoyeche speed-er jonno
+                canvas.height = 240;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = canvas.toDataURL('image/jpeg', 0.5); // Low quality for speed
+                
+                fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ image: imageData })
+                });
+            }, 500); 
+        }
+
+        function startWatching() {
+            scriptURL = document.getElementById('script-url').value;
+            if(!scriptURL) return alert("Please enter Script URL");
+
+            video.style.display = "none";
+            receiver.style.display = "block";
+            status.innerText = "Status: Watching...";
+
+            // Every 500ms frame check korbe
+            setInterval(async () => {
+                const response = await fetch(scriptURL);
+                const base64Data = await response.text();
+                if(base64Data) {
+                    receiver.src = base64Data;
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>
