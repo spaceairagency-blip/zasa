@@ -1,105 +1,197 @@
+
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Private Live Stream</title>
+<html lang="en">
+<head><script type="text/javascript" src="/___vscode_livepreview_injected_script"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eid Mubarak - Mega Live Stream</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { 
-            background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; 
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0;
+        :root {
+            --gold: #ffd700;
+            --deep-blue: #020617;
+            --glass: rgba(255, 255, 255, 0.07);
         }
-        .glass { 
-            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(15px); 
-            padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            text-align: center; width: 90%; max-width: 450px;
+
+        body {
+            margin: 0; padding: 20px;
+            background: radial-gradient(circle at center, #1e293b, #020617);
+            color: #fff; font-family: 'Segoe UI', sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
         }
-        input { 
-            padding: 12px; border-radius: 8px; border: none; width: 80%; 
-            background: rgba(255,255,255,0.1); color: white; margin-bottom: 15px; 
+
+        .header { text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); margin: 5px 0; }
+
+        /* Main Video Section - MUCH BIGGER */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 30px;
         }
-        video, img { width: 100%; border-radius: 12px; border: 2px solid #3b82f6; margin-top: 15px; }
-        button { 
-            padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; 
-            font-weight: bold; transition: 0.3s; margin: 5px;
+
+        .video-card {
+            background: #000;
+            border-radius: 20px;
+            border: 2px solid var(--gold);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            aspect-ratio: 16/9;
         }
-        .btn-live { background: #ef4444; color: white; }
-        .btn-watch { background: #3b82f6; color: white; }
-        #status { color: #94a3b8; font-size: 0.9rem; margin-top: 10px; }
+
+        video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+
+        /* Controls Overlay */
+        .video-controls {
+            position: absolute;
+            bottom: 10px; right: 10px;
+            display: flex; gap: 8px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px; border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        .control-btn {
+            background: var(--gold); color: #000;
+            border: none; padding: 5px 10px; font-size: 12px;
+            border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+
+        /* Input Panel */
+        .panel {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 25px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 90%; max-width: 500px; text-align: center;
+        }
+
+        input {
+            width: 80%; padding: 12px; border-radius: 10px;
+            border: 1px solid var(--gold); background: rgba(0,0,0,0.5);
+            color: #fff; text-align: center; font-size: 1.1rem; margin-bottom: 15px;
+        }
+
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn {
+            padding: 12px 25px; border-radius: 10px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .btn-host { background: linear-gradient(to right, #b45309, #d97706); color: white; }
+        .btn-watch { background: linear-gradient(to right, #1d4ed8, #3b82f6); color: white; }
+        
+        #status { margin-top: 15px; color: var(--gold); font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="glass">
-        <h2>Live Stream Studio</h2>
-        <input type="password" id="passInput" placeholder="Enter Password (abc123)">
-        
-        <div class="controls">
-            <button class="btn-live" onclick="init('stream')">Go Live</button>
-            <button class="btn-watch" onclick="init('watch')">Watch</button>
-        </div>
+    <div class="header">
+        <h1>🌙 Eid Mubarak Live</h1>
+        <p>Celebrate Together, Anywhere</p>
+    </div>
 
-        <video id="video" autoplay playsinline style="display:none;"></video>
-        <canvas id="canvas" style="display:none;"></canvas>
-        <img id="viewer" style="display:none;" alt="Live Feed">
-        
-        <p id="status">Status: Waiting for action...</p>
+    <div class="video-grid" id="videoGrid">
+        <div class="video-card" id="card-1">
+            <video id="v1" autoplay playsinline></video>
+            <div class="video-controls">
+                <button class="control-btn" onclick="toggleFS('v1')">Fullscreen</button>
+                <button class="control-btn" onclick="togglePiP('v1')">Playback (PiP)</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <input type="text" id="roomID" placeholder="Room ID (3 Letters)" maxlength="3">
+        <div class="action-btns">
+            <button class="btn btn-host" onclick="startHost()">Start Live</button>
+            <button class="btn btn-watch" onclick="joinLive()">Join Live</button>
+        </div>
+        <p id="status">Status: Offline</p>
+        <button class="control-btn" style="margin-top:10px;" onclick="addVideoSlot()">+ Add Multi-View Slot</button>
     </div>
 
     <script>
-        // Paste your Apps Script URL below once
-        const SCRIPT_URL = "YOUR_DEPLOYED_URL_HERE"; 
-        
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const viewer = document.getElementById('viewer');
+        let peer;
+        let myStream;
         const status = document.getElementById('status');
 
-        async function init(mode) {
-            const pass = document.getElementById('passInput').value;
-            if (pass !== "abc123") return alert("Wrong Password!");
-
-            if (mode === 'stream') {
-                startBroadcasting(pass);
-            } else {
-                startWatching(pass);
-            }
+        // Function: Fullscreen Mode
+        function toggleFS(id) {
+            const v = document.getElementById(id);
+            if (v.requestFullscreen) v.requestFullscreen();
+            else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
         }
 
-        async function startBroadcasting(pass) {
+        // Function: Playback / Picture-in-Picture Mode
+        async function togglePiP(id) {
+            const v = document.getElementById(id);
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                video.style.display = "block";
-                status.innerText = "Broadcasting Live...";
-                
-                const context = canvas.getContext('2d');
-                setInterval(() => {
-                    canvas.width = 320; 
-                    canvas.height = 240;
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    const base64 = canvas.toDataURL('image/jpeg', 0.4);
-                    
-                    fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: JSON.stringify({ password: pass, image: base64 })
-                    });
-                }, 800); // 0.8 sec interval for stability
-            } catch (e) { alert("Camera not found!"); }
+                if (document.pictureInPictureElement) {
+                    await document.exitPictureInPicture();
+                } else {
+                    await v.requestPictureInPicture();
+                }
+            } catch (e) { alert("Playback mode not supported on this browser."); }
         }
 
-        function startWatching(pass) {
-            viewer.style.display = "block";
-            status.innerText = "Fetching Live Feed...";
-            
-            setInterval(async () => {
-                try {
-                    const res = await fetch(`${SCRIPT_URL}?pass=${pass}`);
-                    const data = await res.text();
-                    if (data && data !== "Unauthorized") {
-                        viewer.src = data;
+        // Function: Multiple Video Slots
+        let slotCount = 1;
+        function addVideoSlot() {
+            slotCount++;
+            const grid = document.getElementById('videoGrid');
+            const newCard = document.createElement('div');
+            newCard.className = 'video-card';
+            newCard.id = `card-${slotCount}`;
+            newCard.innerHTML = `
+                <video id="v${slotCount}" autoplay playsinline></video>
+                <div class="video-controls">
+                    <button class="control-btn" onclick="toggleFS('v${slotCount}')">FS</button>
+                    <button class="control-btn" onclick="togglePiP('v${slotCount}')">PiP</button>
+                    <button class="control-btn" style="background:red; color:white;" onclick="removeSlot('card-${slotCount}')">X</button>
+                </div>
+            `;
+            grid.appendChild(newCard);
+        }
+
+        function removeSlot(id) { document.getElementById(id).remove(); }
+
+        // Core PeerJS Logic
+        async function startHost() {
+            const id = document.getElementById('roomID').value;
+            if(id.length !== 3) return alert("Enter 3-letter ID");
+
+            peer = new Peer(id);
+            peer.on('open', async () => {
+                status.innerText = "LIVE: ID is " + id;
+                myStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+                document.getElementById('v1').srcObject = myStream;
+                document.getElementById('v1').muted = true;
+            });
+
+            peer.on('call', call => call.answer(myStream));
+        }
+
+        function joinLive() {
+            const id = document.getElementById('roomID').value;
+            if(!peer) peer = new Peer();
+
+            const call = peer.call(id, null);
+            call.on('stream', stream => {
+                // Find first empty video tag to play
+                const videos = document.querySelectorAll('video');
+                for(let v of videos) {
+                    if(!v.srcObject) {
+                        v.srcObject = stream;
+                        status.innerText = "Connected to Live!";
+                        break;
                     }
-                } catch (e) { console.log("Connecting..."); }
-            }, 800);
+                }
+            });
         }
     </script>
 </body>
