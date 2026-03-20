@@ -3,220 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌙 Eid Mubarak Live Stream</title>
+    <title>Eid Mubarak Live Grid</title>
     <style>
-        /* Festive Eid Theme */
+        :root { --gold: #fbbf24; --emerald: #064e3b; --dark: #022c22; }
+        
         body { 
-            background: radial-gradient(circle at center, #064e3b, #022c22); 
-            color: #fef3c7; 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0;
-            overflow: hidden;
+            background: radial-gradient(circle, var(--emerald), var(--dark));
+            color: white; font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
         }
 
-        body::before {
-            content: "🌙";
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 3rem;
-            opacity: 0.2;
+        .header { text-align: center; margin-bottom: 10px; }
+        .header h1 { color: var(--gold); text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin: 10px 0; }
+
+        /* THE GRID - Supports Multiple Playbacks */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
         }
 
-        .glass-panel { 
-            background: rgba(6, 78, 59, 0.4); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
-            padding: 40px; 
-            border-radius: 30px; 
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            text-align: center; 
-            width: 90%; 
-            max-width: 500px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(251, 191, 36, 0.1);
+        .video-card {
+            background: #000;
+            border: 2px solid var(--gold);
+            border-radius: 15px;
             position: relative;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
 
-        h2 { 
-            margin-bottom: 5px; 
-            font-weight: 700; 
-            letter-spacing: 2px; 
-            color: #fbbf24;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        video, .viewer-img {
+            width: 100%; height: 100%; object-fit: cover;
         }
 
-        .subtitle {
-            font-size: 0.9rem;
-            color: #d1fae5;
-            margin-bottom: 25px;
-            font-style: italic;
+        /* Fullscreen & Label Overlays */
+        .overlay-label {
+            position: absolute; top: 10px; left: 10px;
+            background: rgba(0,0,0,0.6); padding: 4px 10px;
+            border-radius: 5px; font-size: 0.8rem; border: 1px solid var(--gold);
         }
 
-        input { 
-            padding: 14px; 
-            border-radius: 15px; 
-            border: 1px solid rgba(251, 191, 36, 0.3); 
-            width: 85%; 
-            background: rgba(0, 0, 0, 0.2); 
-            color: #fbbf24; 
-            margin-bottom: 20px; 
-            outline: none;
-            text-align: center;
-            font-size: 1rem;
+        .fs-btn {
+            position: absolute; bottom: 10px; right: 10px;
+            background: var(--gold); color: var(--dark);
+            border: none; padding: 5px 12px; border-radius: 5px;
+            font-weight: bold; cursor: pointer; z-index: 10;
         }
 
-        .controls { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
-
-        button { 
-            padding: 12px 30px; 
-            border-radius: 50px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        /* CONTROLS */
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px; border-radius: 20px;
+            width: 90%; max-width: 500px; text-align: center;
+            border: 1px solid rgba(251, 191, 36, 0.3);
         }
 
-        .btn-live { 
-            background: linear-gradient(135deg, #b91c1c, #7f1d1d); 
-            color: white; 
-            box-shadow: 0 4px 15px rgba(185, 28, 28, 0.4); 
+        input {
+            width: 90%; padding: 12px; margin-bottom: 15px;
+            border-radius: 10px; border: 1px solid var(--gold);
+            background: #000; color: var(--gold); text-align: center;
         }
 
-        .btn-watch { 
-            background: linear-gradient(135deg, #d97706, #92400e); 
-            color: white; 
-            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4); 
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        button {
+            padding: 12px; border-radius: 10px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
         }
 
-        button:hover { 
-            transform: scale(1.05);
-            filter: brightness(1.2);
-        }
+        .btn-watch { background: #2563eb; color: white; }
+        .btn-stream { background: #dc2626; color: white; }
+        .btn-cam { background: var(--gold); color: var(--dark); grid-column: span 2; margin-top: 10px;}
 
-        video, img { 
-            width: 100%; 
-            border-radius: 20px; 
-            border: 3px solid #fbbf24; 
-            margin-top: 15px;
-            display: none;
-            background: #064e3b;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-        }
-
-        #status { 
-            color: #fbbf24; 
-            font-size: 0.9rem; 
-            margin-top: 20px; 
-            font-weight: 500;
-            background: rgba(0,0,0,0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            display: inline-block;
-        }
+        button:active { transform: scale(0.95); }
+        #status { margin-top: 10px; color: var(--gold); font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <div class="glass-panel">
-        <h2>🌙 Eid Mubarak</h2>
-        <p class="subtitle">Join the Family Celebration Live</p>
-        
-        <input type="password" id="passInput" placeholder="Enter Secret Code">
-        
-        <div class="controls">
-            <button class="btn-live" onclick="init('stream')">Start Stream</button>
-            <button class="btn-watch" onclick="init('watch')">Join Celebration</button>
-        </div>
-
-        <video id="video" autoplay playsinline muted></video>
-        <canvas id="canvas" style="display:none;"></canvas>
-        <img id="viewer" alt="Waiting for the host to start...">
-        
-        <p id="status">Ready to connect</p>
+    <div class="header">
+        <h1>🌙 Eid Family Live</h1>
+        <div id="status">Waiting to Connect...</div>
     </div>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP8-zoB6q9PGw_dFOj53QI0IgWXVIK7ECnaG9ySF14VhqQcaXxjBqRA_8VODJWNAZIQ/exec"; 
+    <div class="video-grid" id="videoGrid">
+        <div class="video-card" id="mainCard">
+            <div class="overlay-label" id="streamLabel">Live Feed</div>
+            <video id="localVideo" autoplay playsinline muted style="display:none;"></video>
+            <img id="remoteViewer" class="viewer-img" src="" alt="Waiting for stream...">
+            <button class="fs-btn" onclick="goFullscreen('mainCard')">⛶ Fullscreen</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <input type="password" id="passInput" placeholder="Enter Celebration Code">
         
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const viewer = document.getElementById('viewer');
-        const status = document.getElementById('status');
+        <div class="btn-row">
+            <button class="btn-watch" onclick="startAction('watch')">📺 WATCH LIVE</button>
+            <button class="btn-stream" onclick="startAction('stream')">📽️ GO LIVE</button>
+            <button class="btn-cam" onclick="toggleCamera()">🔄 SWITCH CAMERA (FRONT/BACK)</button>
+        </div>
+    </div>
 
-        // Pre-set canvas size for efficiency
-        canvas.width = 320; 
-        canvas.height = 240;
+    <canvas id="hiddenCanvas" style="display:none;"></canvas>
 
-        async function init(mode) {
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoP8-zoB6q9PGw_dFOj53QI0IgWXVIK7ECnaG9ySF14VhqQcaXxjBqRA_8VODJWNAZIQ/exec";
+        let currentFacingMode = "user"; // "user" or "environment"
+        let streamInterval;
+
+        async function startAction(mode) {
             const pass = document.getElementById('passInput').value;
-            if (!pass) {
-                alert("Please enter the password first!");
-                return;
-            }
+            if(!pass) return alert("Please enter the password!");
 
-            if (mode === 'stream') {
-                startBroadcasting(pass);
+            if(mode === 'stream') {
+                setupStreaming(pass);
             } else {
-                startWatching(pass);
+                setupWatching(pass);
             }
         }
 
-        async function startBroadcasting(pass) {
+        async function setupStreaming(pass) {
+            const video = document.getElementById('localVideo');
+            const viewer = document.getElementById('remoteViewer');
+            
+            // UI Toggle
+            video.style.display = "block";
+            viewer.style.display = "none";
+            document.getElementById('streamLabel').innerText = "🔴 Broadcasting";
+
+            if (window.localStream) {
+                window.localStream.getTracks().forEach(track => track.stop());
+            }
+
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                video.srcObject = stream;
-                video.style.display = "block";
-                viewer.style.display = "none";
-                status.innerText = "✨ You are Live!";
+                window.localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: currentFacingMode, width: 640, height: 480 },
+                    audio: false
+                });
+                video.srcObject = window.localStream;
+
+                const canvas = document.getElementById('hiddenCanvas');
+                const ctx = canvas.getContext('2d');
+
+                if(streamInterval) clearInterval(streamInterval);
                 
-                const context = canvas.getContext('2d');
-                
-                // Speed increased to 300ms (roughly 3.3 frames per second)
-                setInterval(() => {
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    // Quality slightly lowered to 0.25 to keep the network traffic light
-                    const base64 = canvas.toDataURL('image/jpeg', 0.25);
+                streamInterval = setInterval(() => {
+                    canvas.width = 480; // Optimized size for GAS speed
+                    canvas.height = 360;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const base64Data = canvas.toDataURL('image/jpeg', 0.4);
                     
                     fetch(SCRIPT_URL, {
                         method: 'POST',
                         mode: 'no-cors',
-                        body: JSON.stringify({ password: pass, image: base64 })
+                        body: JSON.stringify({ password: pass, image: base64Data })
                     });
-                }, 300); 
-
-            } catch (e) {
-                alert("Camera access denied!");
-                status.innerText = "Error: Camera not found";
+                }, 1000);
+                
+                document.getElementById('status').innerText = "Live Broadcaster Active";
+            } catch (err) {
+                alert("Camera Access Error: " + err);
             }
         }
 
-        function startWatching(pass) {
-            video.style.display = "none";
+        function setupWatching(pass) {
+            document.getElementById('localVideo').style.display = "none";
+            const viewer = document.getElementById('remoteViewer');
             viewer.style.display = "block";
-            status.innerText = "Connecting to the celebration...";
-            
-            // Speed increased to 300ms for watchers too
+            document.getElementById('streamLabel').innerText = "📺 Watching Live";
+
             setInterval(async () => {
                 try {
-                    const res = await fetch(`${SCRIPT_URL}?pass=${pass}`);
-                    const data = await res.text();
-                    
-                    if (data && data !== "Unauthorized" && data.startsWith("data:image")) {
+                    const response = await fetch(`${SCRIPT_URL}?pass=${pass}`);
+                    const data = await response.text();
+                    if(data.startsWith("data:image")) {
                         viewer.src = data;
-                        status.innerText = "🔴 Live Now";
-                    } else if (data === "Unauthorized") {
-                        status.innerText = "Incorrect Password";
+                        document.getElementById('status').innerText = "Connected to Home Feed";
                     }
-                } catch (e) {
-                    status.innerText = "Waiting for host...";
+                } catch(e) {
+                    document.getElementById('status').innerText = "Searching for Signal...";
                 }
-            }, 300);
+            }, 1000);
+        }
+
+        function toggleCamera() {
+            currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
+            const pass = document.getElementById('passInput').value;
+            if(pass && document.getElementById('localVideo').style.display === "block") {
+                setupStreaming(pass);
+            } else {
+                alert("Camera switched! Start Stream to see it.");
+            }
+        }
+
+        function goFullscreen(id) {
+            const element = document.getElementById(id);
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+            }
         }
     </script>
 </body>
